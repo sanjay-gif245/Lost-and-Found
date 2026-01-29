@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Item Claims - Lost and Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .claim-status {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.9em;
+        font-weight: bold;
+        text-transform: capitalize;
+        display: inline-block;
+      }
+      .status-pending {
+        background-color: #ffeeba;
+        color: #856404;
+      }
+      .status-approved {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .claim-card {
+        border: 1px solid #eee;
+        background-color: #fff;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .claim-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+      .claim-header h3 {
+        margin: 0;
+        color: #333;
+      }
+      .claim-info p {
+        margin: 5px 0;
+        font-size: 0.95em;
+        color: #555;
+      }
+      .claim-responses h4 {
+        margin-top: 15px;
+        margin-bottom: 8px;
+        color: #444;
+        font-size: 1em;
+      }
+      .response-item {
+        margin-left: 15px;
+        border-left: 2px solid #eee;
+        padding-left: 15px;
+        margin-bottom: 8px;
+      }
+      .response-item p {
+        margin: 3px 0;
+        font-size: 0.9em;
+      }
+      .claim-actions {
+        margin-top: 15px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      .claim-actions .approve-btn,
+      .claim-actions .reject-btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-align: center;
+        transition: background-color 0.2s ease;
+      }
+      .claim-actions .approve-btn {
+        background-color: #28a745;
+        color: white;
+      }
+      .claim-actions .approve-btn:hover {
+        background-color: #218838;
+      }
+      .claim-actions .reject-btn {
+        background-color: #dc3545;
+        color: white;
+      }
+      .claim-actions .reject-btn:hover {
+        background-color: #c82333;
+      }
+      .loading-text,
+      .error-message,
+      .no-items {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+      }
+      .error-message {
+        color: #dc3545;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+      }
+      .no-items {
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <div class="nav-profile-container">
+        <nav>
+          <a href="home.html">Home</a>
+          <a href="items.html">Found Item</a>
+          <a href="post.html">Post Item</a>
+          <a href="lost.html">Lost Item</a>
+        </nav>
+        <img
+          src="images/profile-pic.png"
+          alt="profile"
+          class="user-pic"
+          style="display: none"
+        />
+        <div class="sub-menu-wrap" style="display: none">
+          <div class="sub-menu">
+            <div class="user-info">
+              <h3 id="user-name">User</h3>
+            </div>
+            <hr />
+            <a href="account.html" class="sub-menu-link">
+              <img src="images/profile.png" alt="Account" />
+              <p>Your Account</p>
+              <span>></span>
+            </a>
+            <a href="claims.html" class="sub-menu-link">
+              <img src="images/claims.png" alt="Claims" />
+              <p>Item Claims</p>
+              <span>></span>
+            </a>
+            <a href="#" class="sub-menu-link" id="logout-link">
+              <img src="images/logout.png" alt="Logout" />
+              <p>Logout</p>
+              <span>></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="claims-page">
+      <h2>Claims Received for Your Posted Items</h2>
+      <div class="claims-container">
+        <div id="claims-list">
+          <p class="loading-text">Loading claims...</p>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const userPic = document.querySelector(".user-pic");
+      const subMenuWrap = document.querySelector(".sub-menu-wrap");
+
+      if (userPic) {
+        userPic.addEventListener("click", () => {
+          if (subMenuWrap) subMenuWrap.classList.toggle("open");
+        });
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        if (userPic) userPic.style.display = "block";
+        if (subMenuWrap) subMenuWrap.style.display = "block";
+
+        try {
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          const userNameEl = document.getElementById("user-name");
+          if (userNameEl && user.name) {
+            userNameEl.textContent = user.name;
+          }
+        } catch (e) {
+          console.error("Error parsing user data", e);
+        }
+
+        loadClaims();
+
+        const logoutLink = document.getElementById("logout-link");
+        if (logoutLink) {
+          logoutLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+          });
+        }
+      });
+
+      async function fetchAPI(url, options = {}) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.warn("No token found during API call. Redirecting to login.");
+          window.location.href = "login.html";
+          throw new Error("User not authenticated.");
+        }
+
+        const defaultHeaders = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+        options.headers = { ...defaultHeaders, ...options.headers };
+        if (options.body instanceof FormData)
+          delete options.headers["Content-Type"];
+
+        const response = await fetch(url, options);
+        const contentType = response.headers.get("content-type");
+
+        if (!response.ok) {
+          let errorMsg = `Request failed: ${response.status} ${response.statusText}`;
+          let errorData = null;
+          try {
+            if (contentType?.includes("application/json")) {
+              errorData = await response.json();
+              errorMsg = errorData?.message || errorMsg;
+            } else {
+              const text = await response.text();
+              if (!text.toLowerCase().includes("<!doctype html>"))
+                errorMsg = `Server error: ${text.substring(0, 200)}`;
+            }
+          } catch (e) {
+          }
+          const error = new Error(errorMsg);
+          error.status = response.status;
+          error.data = errorData;
+          throw error;
+        }
+
+        if (contentType?.includes("application/json")) {
+          const data = await response.json();
+        
+          return data;
+        } else if (
+          response.status === 204 ||
+          response.headers.get("content-length") === "0"
+        ) {
+          return { success: true };
+        } else {
+          return await response.text();
+        }
+      }
+
+      async function loadClaims() {
+        const claimsContainer = document.getElementById("claims-list");
+        if (!claimsContainer)
+          return console.error("Claims container #claims-list not found.");
+        claimsContainer.innerHTML =
+          '<p class="loading-text">Loading claims...</p>';
+
+        try {
+          const data = await fetchAPI(
+            "http://localhost:5000/api/claims/my-items-claims"
+          );
+
+          claimsContainer.innerHTML = "";
+            if (!data.data || data.data.length === 0) {
+            claimsContainer.innerHTML =
+              "<p class='no-items'>You have no pending claims for items you posted.</p>";
+            return;
+          }
+
+          data.data.forEach((claim) => {
+            if (!claim.itemId || !claim.claimantId) {
+              console.warn(
+                "Skipping claim with missing item or claimant ID:",
+                claim._id
+              );
+              return;
+            }
+
+            const claimElement = document.createElement("div");
+            claimElement.className = "claim-card";
+
+            let responsesHtml =
+              claim.responses
+                ?.map(
+                  (response) => `
+                <div class="response-item">
+                    <p><strong>Question:</strong> ${
+                      response.question || "N/A"
+                    }</p>
+                    <p><strong>Answer:</strong> ${response.answer || "N/A"}</p>
+                </div>`
+                )
+                .join("") ||
+              "<p><i>No verification responses provided.</i></p>";
+
+            const statusClass = `status-${claim.status}`;
+
+            claimElement.innerHTML = `
+                <div class="claim-header">
+                    <h3>Claim for ${claim.itemId?.name || "Unknown Item"}</h3>
+                    <span class="claim-status ${statusClass}">${
+              claim.status
+            }</span>
+                </div>
+                <div class="claim-info">
+                    <p><strong>Claimed by:</strong> ${
+                      claim.claimantId?.name || "Anonymous"
+                    }</p>
+                    <p><strong>Contact:</strong> ${
+                      claim.claimantId?.email || "N/A"
+                    } | ${claim.claimantId?.phone || "N/A"}</p>
+                    <p><strong>Date Submitted:</strong> ${new Date(
+                      claim.createdAt
+                    ).toLocaleString()}</p>
+                </div>
+                <div class="claim-responses">
+                    <h4>Verification Responses:</h4>
+                    ${responsesHtml}
+                </div>
+                ${
+                  claim.status === "pending"
+                    ? `
+                    <div class="item-actions claim-actions">
+                        <button class="approve-btn view-btn" data-claim-id="${claim._id}" data-item-id="${claim.itemId?._id}">Approve</button>
+                        <button class="reject-btn delete-btn" data-claim-id="${claim._id}" data-item-id="${claim.itemId?._id}">Reject</button>
+                    </div>`
+                    : ""
+                }
+            `;
+
+            if (claim.status === "pending") {
+              const approveBtn = claimElement.querySelector(".approve-btn");
+              const rejectBtn = claimElement.querySelector(".reject-btn");
+              if (approveBtn) {
+                approveBtn.addEventListener("click", (e) =>
+                  handleClaimVerification(e.target.dataset.claimId, "approved")
+                );
+              }
+              if (rejectBtn) {
+                rejectBtn.addEventListener("click", (e) =>
+                  handleClaimVerification(e.target.dataset.claimId, "rejected")
+                );
+              }
+            }
+
+            claimsContainer.appendChild(claimElement);
+          });
+        } catch (error) {
+          console.error("Error loading claims:", error);
+          claimsContainer.innerHTML = `<p class="error-message">Error loading claims: ${error.message}</p>`;
+        }
+      }
+
+      async function handleClaimVerification(claimId, status) {
+        try {
+          const data = await fetchAPI(
+            `http://localhost:5000/api/claims/${claimId}/verify`,
+            {
+              method: "PUT",
+              body: JSON.stringify({ status }),
+            }
+          );
+
+          alert(`Claim ${status} successfully.`);
+          loadClaims();
+        } catch (error) {
+          console.error(`Error verifying claim (${status}):`, error);
+          alert(`Error: ${error.message}`);
+        }
+      }
+    </script>
+  </body>
+</html>

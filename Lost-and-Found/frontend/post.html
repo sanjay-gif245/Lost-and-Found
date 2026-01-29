@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post Found Item - Lost and Found</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <div class="nav-profile-container">
+        <nav>
+          <a href="home.html">Home</a>
+          <a href="items.html">Found Item</a>
+          <a href="lost.html">Lost Item</a>
+        </nav>
+        <img src="images/profile-pic.png" alt="profile" class="user-pic" />
+        <div class="sub-menu-wrap">
+          <div class="sub-menu">
+            <div class="user-info">
+              <h3>User</h3>
+            </div>
+            <hr />
+            <a href="account.html" class="sub-menu-link">
+              <img src="images/profile.png" />
+              <p>Your Profile</p>
+              <span>></span>
+            </a>
+            <a href="#" class="sub-menu-link" id="logout-link">
+              <img src="images/logout.png" />
+              <p>Logout</p>
+              <span>></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="post-item">
+      <h2>Post Found Item</h2>
+      <form id="post-form">
+        <input type="hidden" id="type" name="type" value="found" />
+        Name:
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Enter item name"
+          required
+          minlength="3"
+          maxlength="50"
+        />
+
+        Item Category:
+        <select id="category" name="category" required>
+          <option value="">Select a category</option>
+          <option value="electronics">Electronics</option>
+          <option value="personal_belongings">Personal Belongings</option>
+          <option value="documents">Documents/Cards</option>
+          <option value="clothing">Clothing</option>
+          <option value="accessories">Accessories</option>
+          <option value="keys">Keys</option>
+          <option value="bags">Bags/Wallets</option>
+          <option value="jewelry">Jewelry</option>
+          <option value="eyewear">Eyeglasses/Sunglasses</option>
+          <option value="umbrellas">Umbrellas</option>
+          <option value="chargers">Chargers</option>
+          <option value="headphones">Headphones</option>
+          <option value="water_bottles">Water Bottles</option>
+          <option value="other">Other</option>
+        </select>
+
+        Description:
+        <textarea
+          id="description"
+          name="description"
+          placeholder="Provide a brief description..."
+          rows="4"
+          required
+          minlength="10"
+          maxlength="500"
+        ></textarea>
+
+        Date Found:
+        <input type="date" id="date-found" name="date" required max="" />
+
+        Time Found:
+        <input type="time" id="time-found" name="time" required />
+
+        Location Found:
+        <input
+          type="text"
+          id="location"
+          name="location"
+          placeholder="Enter location where item was found"
+          required
+          minlength="5"
+          maxlength="100"
+        />
+
+        Upload Image:
+        <input type="file" id="image" name="image" accept="image/*" />
+
+        <div class="verification-section">
+          <h3>Verification Questions</h3>
+          <p>
+            Add questions that will help identify the true owner of this item
+          </p>
+
+          <div id="questions-container">
+            <div class="question-pair">
+              <input
+                type="text"
+                class="question-input"
+                placeholder="Question (e.g., What color is it?)"
+                required
+              />
+              <input
+                type="text"
+                class="answer-input"
+                placeholder="Answer"
+                required
+              />
+              <button type="button" class="remove-question">Remove</button>
+            </div>
+          </div>
+
+          <button type="button" id="add-question" class="secondary-btn">
+            Add Another Question
+          </button>
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
+      <p id="postMessage"></p>
+    </main>
+
+    <script>
+      // --- Global Variables & DOM Elements ---
+      const userPic = document.querySelector(".user-pic");
+      const subMenuWrap = document.querySelector(".sub-menu-wrap");
+      let logoutTimer; // For auto-logout
+
+      // --- Auto-Logout Functionality ---
+
+      // Function to reset the logout timer
+      function resetLogoutTimer() {
+        clearTimeout(logoutTimer);
+        // Start a new timer for logout after 5 minutes (300,000 milliseconds)
+        logoutTimer = setTimeout(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          alert("You have been logged out due to inactivity.");
+          window.location.href = "login.html";
+        }, 300000);
+      }
+
+      // --- Profile Submenu Toggle ---
+      if (userPic) {
+        userPic.addEventListener("click", () => {
+          if (subMenuWrap) {
+            subMenuWrap.classList.toggle("open");
+          }
+        });
+      }
+
+      // --- Page Initialization (DOM Ready) ---
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        let user = {};
+
+        try {
+          user = JSON.parse(localStorage.getItem("user") || "{}");
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+          // Redirect to login if user data is corrupted
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "login.html";
+          return;
+        }
+
+        // --- Authentication Check ---
+        if (!token) {
+          window.location.href = "login.html";
+          return; // Stop further execution if not logged in
+        }
+
+        // --- Show Profile Elements ---
+        if (userPic) userPic.style.display = "block";
+        if (subMenuWrap) subMenuWrap.style.display = "block";
+
+        // --- Update User Name ---
+        const userNameElement = document.querySelector(".user-info h3");
+        if (userNameElement && user.name) {
+          userNameElement.textContent = user.name;
+        }
+
+        // --- Logout Button Functionality ---
+        const logoutLink = document.getElementById("logout-link");
+        if (logoutLink) {
+          logoutLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+          });
+        }
+
+        // --- Start Auto-Logout Timer & Activity Listeners ---
+        resetLogoutTimer();
+        document.addEventListener("mousemove", resetLogoutTimer);
+        document.addEventListener("keypress", resetLogoutTimer);
+
+        // --- Page-Specific Initializations (Post Form) ---
+
+        // Set max date for 'date-found' input to today
+        const today = new Date().toISOString().split("T")[0];
+        const dateFoundInput = document.getElementById("date-found");
+        if (dateFoundInput) {
+          dateFoundInput.setAttribute("max", today);
+        }
+
+        // Add event listener for "Add Another Question" button
+        const addQuestionButton = document.getElementById("add-question");
+        const questionsContainer = document.getElementById(
+          "questions-container"
+        );
+        if (addQuestionButton && questionsContainer) {
+          addQuestionButton.addEventListener("click", function () {
+            const newQuestion = document.createElement("div");
+            newQuestion.className = "question-pair";
+            newQuestion.innerHTML = `
+                    <input type="text" class="question-input" placeholder="Question (e.g., What color is it?)" required>
+                    <input type="text" class="answer-input" placeholder="Answer" required>
+                    <button type="button" class="remove-question">Remove</button>
+                `;
+            questionsContainer.appendChild(newQuestion);
+
+            // Add remove functionality to the new question's button
+            newQuestion
+              .querySelector(".remove-question")
+              .addEventListener("click", function () {
+                questionsContainer.removeChild(newQuestion);
+              });
+          });
+        }
+
+        // Add remove functionality to the initial question(s)
+        questionsContainer
+          .querySelectorAll(".remove-question")
+          .forEach((button) => {
+            button.addEventListener("click", function () {
+              if (document.querySelectorAll(".question-pair").length > 1) {
+                this.parentElement.remove();
+              } else {
+                alert("You need at least one verification question");
+              }
+            });
+          });
+      });
+
+      // --- Form Submission Handling ---
+      const postForm = document.getElementById("post-form");
+      if (postForm) {
+        postForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const token = localStorage.getItem("token");
+          if (!token) {
+            // Should ideally not happen due to DOMContentLoaded check, but good practice
+            window.location.href = "login.html";
+            return;
+          }
+
+          // Collect verification questions and answers
+          const questions = [];
+          document.querySelectorAll(".question-pair").forEach((pair) => {
+            const questionInput = pair.querySelector(".question-input");
+            const answerInput = pair.querySelector(".answer-input");
+            if (questionInput && answerInput) {
+              const question = questionInput.value.trim();
+              const answer = answerInput.value.trim();
+              if (question && answer) {
+                questions.push({ question, answer });
+              }
+            }
+          });
+
+          // Validate questions for found items
+          const itemTypeInput = document.getElementById("type");
+          if (
+            itemTypeInput &&
+            itemTypeInput.value === "found" &&
+            questions.length === 0
+          ) {
+            alert(
+              "Please add at least one verification question for found items"
+            );
+            return;
+          }
+
+          const formData = new FormData(this);
+          const messageElement = document.getElementById("postMessage");
+          formData.append("questions", JSON.stringify(questions)); // Ensure questions are stringified
+
+          try {
+            const response = await fetch("http://localhost:5000/api/items", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                // 'Content-Type' is automatically set by browser for FormData
+              },
+              body: formData,
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              messageElement.textContent =
+                "Item posted successfully! Redirecting...";
+              messageElement.style.color = "green";
+
+              // Redirect to found items page (or another relevant page)
+              setTimeout(() => {
+                window.location.href = "items.html";
+              }, 1500);
+            } else {
+              messageElement.textContent =
+                data.message || "Failed to post item";
+              messageElement.style.color = "red";
+            }
+          } catch (error) {
+            messageElement.textContent = "An error occurred. Please try again.";
+            messageElement.style.color = "red";
+            console.error("Post error:", error);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

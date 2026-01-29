@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Lost and Found</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <nav>
+        <a href="home.html">Home</a>
+        <a href="signup.html">Sign up</a>
+      </nav>
+    </header>
+    <main id="login-page">
+      <h2>Login</h2>
+      <form class="auth-form">
+        <label for="email">Email:</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+          title="Please enter a valid email address"
+        />
+
+        <label for="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+          minlength="8"
+          pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}"
+          title="Must contain at least 8 characters, including uppercase, lowercase, number, and special character"
+        />
+
+        <button type="submit">Login</button>
+
+        <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+      </form>
+      <p id="loginMessage"></p>
+    </main>
+
+    <script>
+      document
+        .querySelector(".auth-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const messageElement = document.getElementById("loginMessage");
+
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/auth/login",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+              }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+              localStorage.setItem("token", data.token);
+              localStorage.setItem("user", JSON.stringify(data.user));
+
+              messageElement.textContent = "Login successful! Redirecting...";
+              messageElement.style.color = "green";
+
+              setTimeout(() => {
+                window.location.href = "home.html";
+              }, 1500);
+            } else {
+              messageElement.textContent = data.message || "Login failed";
+              messageElement.style.color = "red";
+            }
+          } catch (error) {
+            messageElement.textContent = "An error occurred. Please try again.";
+            messageElement.style.color = "red";
+            console.error("Login error:", error);
+          }
+        });
+    </script>
+  </body>
+</html>

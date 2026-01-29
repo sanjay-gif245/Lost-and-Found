@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post Lost Item - Lost and Found</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <div class="nav-profile-container">
+        <nav>
+          <a href="home.html">Home</a>
+          <a href="items.html">Found Item</a>
+          <a href="post.html">Post Item</a>
+          <a href="lost.html">Lost Item</a>
+        </nav>
+        <img src="images/profile-pic.png" alt="profile" class="user-pic" />
+        <div class="sub-menu-wrap">
+          <div class="sub-menu">
+            <div class="user-info">
+              <h3>User</h3>
+            </div>
+            <hr />
+            <a href="account.html" class="sub-menu-link" id="profile-link">
+              <img src="images/profile.png" />
+              <p>Your Profile</p>
+              <span>></span>
+            </a>
+            <a href="#" class="sub-menu-link" id="logout-link">
+              <img src="images/logout.png" />
+              <p>Logout</p>
+              <span>></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="post-item">
+      <h2>Post Lost Item</h2>
+      <form id="post-form" class="post-form">
+        <input type="hidden" id="type" name="type" value="lost" />
+
+        <label for="name">Item Name:</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Enter item name"
+          required
+          minlength="3"
+          maxlength="50"
+        />
+
+        Item Category:
+        <select id="category" name="category" required>
+          <option value="">Select a category</option>
+          <option value="electronics">Electronics</option>
+          <option value="personal_belongings">Personal Belongings</option>
+          <option value="documents">Documents/Cards</option>
+          <option value="clothing">Clothing</option>
+          <option value="accessories">Accessories</option>
+          <option value="keys">Keys</option>
+          <option value="bags">Bags/Wallets</option>
+          <option value="jewelry">Jewelry</option>
+          <option value="eyewear">Eyeglasses/Sunglasses</option>
+          <option value="umbrellas">Umbrellas</option>
+          <option value="chargers">Chargers</option>
+          <option value="headphones">Headphones</option>
+          <option value="water_bottles">Water Bottles</option>
+          <option value="other">Other</option>
+        </select>
+
+        <label for="description">Description:</label>
+        <textarea
+          id="description"
+          name="description"
+          placeholder="Provide a brief description..."
+          rows="4"
+          required
+          minlength="10"
+          maxlength="500"
+        ></textarea>
+
+        <label for="date-lost">Date Lost:</label>
+        <input type="date" id="date-lost" name="date" required max="" />
+
+        <label for="time-lost">Time Lost:</label>
+        <input type="time" id="time-lost" name="time" required />
+
+        <label for="location">Location Lost:</label>
+        <input
+          type="text"
+          id="location"
+          name="location"
+          placeholder="Enter location where item was lost"
+          required
+          minlength="5"
+          maxlength="100"
+        />
+
+        <label for="image">Upload Image:</label>
+        <input type="file" id="image" name="image" accept="image/*" />
+
+        <button type="submit">Submit Lost Item</button>
+      </form>
+      <p id="postMessage" style="text-align: center; margin-top: 15px"></p>
+    </main>
+
+    <script>
+      const userPic = document.querySelector(".user-pic");
+      const subMenuWrap = document.querySelector(".sub-menu-wrap");
+      let logoutTimer;
+
+      function resetLogoutTimer() {
+        clearTimeout(logoutTimer);
+        logoutTimer = setTimeout(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          alert("You have been logged out due to inactivity.");
+          window.location.href = "login.html";
+        }, 300000);
+      }
+
+      if (userPic) {
+        userPic.addEventListener("click", () => {
+          if (subMenuWrap) {
+            subMenuWrap.classList.toggle("open");
+          }
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        let user = {};
+
+        try {
+          user = JSON.parse(localStorage.getItem("user") || "{}");
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "login.html";
+          return;
+        }
+
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        if (userPic) userPic.style.display = "block";
+        if (subMenuWrap) subMenuWrap.style.display = "block";
+
+        const userNameElement = document.querySelector(".user-info h3");
+        if (userNameElement && user.name) {
+          userNameElement.textContent = user.name;
+        }
+
+        const logoutLink = document.getElementById("logout-link");
+        if (logoutLink) {
+          logoutLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+          });
+        }
+
+        resetLogoutTimer();
+        document.addEventListener("mousemove", resetLogoutTimer);
+        document.addEventListener("keypress", resetLogoutTimer);
+
+        const dateInput = document.getElementById("date-lost");
+        if (dateInput) {
+          const today = new Date().toISOString().split("T")[0];
+          dateInput.setAttribute("max", today);
+        }
+      });
+
+      const postForm = document.getElementById("post-form");
+      if (postForm) {
+        postForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const token = localStorage.getItem("token");
+          if (!token) {
+            window.location.href = "login.html";
+            return;
+          }
+
+          const formData = new FormData(this);
+          const messageElement = document.getElementById("postMessage");
+          messageElement.textContent = "Submitting...";
+          messageElement.style.color = "black";
+
+          try {
+            const response = await fetch("http://localhost:5000/api/items", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              messageElement.textContent =
+                "Lost item reported successfully! Redirecting...";
+              messageElement.style.color = "green";
+
+              setTimeout(() => {
+                window.location.href = "lost.html";
+              }, 1500);
+            } else {
+              messageElement.textContent =
+                data.message || "Failed to report lost item";
+              messageElement.style.color = "red";
+            }
+          } catch (error) {
+            messageElement.textContent = "An error occurred. Please try again.";
+            messageElement.style.color = "red";
+            console.error("Post error:", error);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Account - Lost and Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .claim-status {
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.9em;
+        font-weight: bold;
+        text-transform: capitalize;
+        display: inline-block;
+      }
+      .status-pending {
+        background-color: #ffeeba;
+        color: #856404;
+      }
+      .status-approved {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background-color: hsla(0, 0%, 100%, 0.8);
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        gap: 15px;
+      }
+      .item-info {
+        flex-grow: 1;
+      }
+      .item-info h4 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: #333;
+      }
+      .item-info p {
+        margin: 4px 0;
+        font-size: 0.95em;
+        color: #555;
+      }
+      .item-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .item-actions .view-btn,
+      .item-actions .delete-btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-align: center;
+        transition: background-color 0.2s ease;
+      }
+      .item-actions .view-btn {
+        background-color: #007bff;
+        color: white;
+      }
+      .item-actions .view-btn:hover {
+        background-color: #0056b3;
+      }
+      .item-actions .delete-btn {
+        background-color: #dc3545;
+        color: white;
+      }
+      .item-actions .delete-btn:hover {
+        background-color: #c82333;
+      }
+      .item-actions .delete-btn[data-action="cancel-claim"] {
+        background-color: #ffc107;
+        color: #333;
+      }
+      .item-actions .delete-btn[data-action="cancel-claim"]:hover {
+        background-color: #e0a800;
+      }
+      .item-actions .delete-btn[data-action="delete-claim"] {
+        background-color: #6c757d;
+        color: white;
+      }
+      .item-actions .delete-btn[data-action="delete-claim"]:hover {
+        background-color: #5a6268;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+      }
+      .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 25px;
+        border: 1px solid #ddd;
+        width: 90%;
+        max-width: 650px;
+        border-radius: 10px;
+        position: relative;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+      .modal-scrollable {
+        max-height: calc(100vh - 220px);
+        overflow-y: auto;
+        padding-right: 10px;
+      }
+      .close {
+        color: #777;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 32px;
+        font-weight: bold;
+        line-height: 1;
+      }
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      #responses-modal .claim-card {
+        border: 1px solid #eee;
+        background-color: #f9f9f9;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+      }
+      #responses-modal .claim-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #ddd;
+      }
+      #responses-modal .claim-header h4 {
+        margin: 0;
+      }
+      #responses-modal .claim-details p {
+        margin: 5px 0;
+        font-size: 0.9em;
+      }
+      #responses-modal .claim-actions {
+        margin-top: 10px;
+      }
+      #responses-modal .response {
+        margin-left: 10px;
+        border-left: 2px solid #ddd;
+        padding-left: 10px;
+        margin-bottom: 8px;
+      }
+      #responses-modal h5 {
+        margin-top: 15px;
+        margin-bottom: 5px;
+        color: #555;
+      }
+
+
+      #change-password-modal .form-group {
+        margin-bottom: 15px;
+      }
+      #change-password-modal label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      #change-password-modal input[type="password"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      #change-password-modal .form-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      #change-password-modal button {
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+      }
+      #cancel-password-btn {
+        background-color: #6c757d;
+        color: white;
+      }
+      #cancel-password-btn:hover {
+        background-color: #5a6268;
+      }
+      #save-password-btn {
+        background-color: #007bff;
+        color: white;
+      }
+      #save-password-btn:hover {
+        background-color: #0056b3;
+      }
+      #password-error {
+        color: red;
+        margin-top: 10px;
+        font-size: 0.9em;
+        min-height: 1.2em;
+      }
+
+      .loading-text,
+      .error-message {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+      }
+      .error-message {
+        color: #dc3545;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <div class="nav-profile-container">
+        <nav>
+          <a href="home.html">Home</a>
+          <a href="items.html">Found Item</a>
+          <a href="post.html">Post Item</a>
+          <a href="lost.html">Lost Item</a>
+        </nav>
+        <img
+          src="images/profile-pic.png"
+          alt="profile"
+          class="user-pic"
+          style="display: none"
+        />
+        <div class="sub-menu-wrap" style="display: none">
+          <div class="sub-menu">
+            <div class="user-info">
+              <h3 id="user-name">User</h3>
+            </div>
+            <hr />
+            <a href="account.html" class="sub-menu-link">
+              <img src="images/profile.png" alt="Profile Icon" />
+              <p>Your Account</p>
+              <span>></span>
+            </a>
+            <a href="#" class="sub-menu-link" id="logout-link">
+              <img src="images/logout.png" alt="Logout Icon" />
+              <p>Logout</p>
+              <span>></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="account-page">
+      <div class="account-container">
+        <div class="account-section">
+          <h3>Profile Information</h3>
+          <div class="profile-details">
+            <div class="info-row">
+              <label>Name:</label>
+              <p id="profile-name">Loading...</p>
+            </div>
+
+            <div class="info-row">
+              <label>Email:</label>
+              <p id="profile-email">Loading...</p>
+            </div>
+
+            <div class="info-row">
+              <label>Phone:</label>
+              <p id="profile-phone">Loading...</p>
+            </div>
+
+            <div>
+              <button id="change-password-btn">Change Password</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="account-section">
+          <h3>Your Activity</h3>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="lost">
+              My Lost Items
+            </button>
+            <button class="tab-btn" data-tab="found">My Found Items</button>
+            <button class="tab-btn" data-tab="claimed">
+              My Submitted Claims
+            </button>
+          </div>
+          <div class="items-list" id="user-items">
+            <p class="loading-text">Loading your items...</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="responses-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h3>Claims Received for Your Item</h3>
+          <div id="responses-container" class="modal-scrollable"></div>
+        </div>
+      </div>
+
+      <div id="claimed-item-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <div id="claimed-item-details" class="modal-scrollable"></div>
+        </div>
+      </div>
+    </main>
+
+    <div id="change-password-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Change Password</h3>
+        <form id="change-password-form">
+          <div class="form-group">
+            <label for="current-password">Current Password:</label>
+            <input
+              type="password"
+              id="current-password"
+              name="currentPassword"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="new-password">New Password:</label>
+            <input
+              type="password"
+              id="new-password"
+              name="newPassword"
+              required
+              minlength="8"
+              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}"
+              title="Must contain at least one number, one uppercase and lowercase letter, one special character, and at least 8 or more characters"
+            />
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">Confirm New Password:</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirmPassword"
+              required
+            />
+          </div>
+          <div
+            id="password-error"
+            style="
+              color: red;
+              margin-top: 10px;
+              display: none;
+              min-height: 1.2em;
+            "
+          ></div>
+          <div class="form-actions">
+            <button type="button" id="cancel-password-btn">Cancel</button>
+            <button type="submit" id="save-password-btn">
+              Change Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const userPic = document.querySelector(".user-pic");
+      const subMenuWrap = document.querySelector(".sub-menu-wrap");
+      const responsesModal = document.getElementById("responses-modal");
+      const claimedItemModal = document.getElementById("claimed-item-modal");
+      const changePasswordModal = document.getElementById(
+        "change-password-modal"
+      );
+      let logoutTimer;
+
+
+      function resetLogoutTimer() {
+        clearTimeout(logoutTimer);
+        logoutTimer = setTimeout(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          alert("You have been logged out due to inactivity.");
+          window.location.href = "login.html";
+        }, 300000);
+      }
+
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+        if (userPic) userPic.style.display = "block";
+        if (subMenuWrap) subMenuWrap.style.display = "block";
+
+
+        resetLogoutTimer();
+        document.addEventListener("mousemove", resetLogoutTimer);
+        document.addEventListener("keypress", resetLogoutTimer);
+
+
+        try {
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          document
+            .querySelectorAll("#user-name, #profile-name")
+            .forEach((el) => (el.textContent = user.name || "User"));
+          document.getElementById("profile-email").textContent =
+            user.email || "N/A";
+          document.getElementById("profile-phone").textContent =
+            user.phone || "N/A";
+        } catch (e) {
+          console.error("Error parsing user data from localStorage", e);
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "login.html";
+          return;
+        }
+
+
+        if (userPic) {
+          userPic.addEventListener("click", () => {
+            if (subMenuWrap) subMenuWrap.classList.toggle("open");
+          });
+        } else {
+          console.error("User profile picture element not found.");
+        }
+
+        const logoutLink = document.getElementById("logout-link");
+        if (logoutLink) {
+          logoutLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+          });
+        } else {
+          console.error("Logout link element not found.");
+        }
+
+        const tabBtns = document.querySelectorAll(".tab-btn");
+        tabBtns.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            tabBtns.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            loadUserItems(btn.dataset.tab);
+          });
+        });
+
+        setupModalCloseLogic(responsesModal);
+        setupModalCloseLogic(claimedItemModal);
+        setupModalCloseLogic(changePasswordModal);
+        setupChangePassword();
+
+
+        loadUserItems("lost");
+      });
+
+
+      async function fetchAPI(url, options = {}) {
+        const defaultHeaders = {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        };
+
+        options.headers = { ...defaultHeaders, ...options.headers };
+
+
+        if (options.body instanceof FormData) {
+          delete options.headers["Content-Type"];
+        }
+
+        const response = await fetch(url, options);
+        const contentType = response.headers.get("content-type");
+
+        if (!response.ok) {
+          let errorMsg = `HTTP error! Status: ${response.status}`;
+          let errorData = null;
+          try {
+            if (contentType?.includes("application/json")) {
+              errorData = await response.json();
+              errorMsg = errorData?.message || errorMsg;
+            } else {
+              const text = await response.text();
+              errorMsg = `Server error: ${text.substring(0, 200)}`;
+            }
+          } catch (e) {
+
+          }
+          const error = new Error(errorMsg);
+          error.status = response.status;
+          error.data = errorData;
+          throw error;
+        }
+
+
+        if (contentType?.includes("application/json")) {
+          const data = await response.json();
+          if (data.success === false) {
+
+            throw new Error(data.message || "API request failed");
+          }
+          return data;
+        } else if (
+          response.status === 204 ||
+          response.headers.get("content-length") === "0"
+        ) {
+
+          return { success: true };
+        } else {
+
+          return await response.text();
+        }
+      }
+      async function loadUserItems(tabType) {
+        const token = localStorage.getItem("token");
+        const container = document.getElementById("user-items");
+        if (!container)
+          return console.error("#user-items container not found.");
+        container.innerHTML = '<p class="loading-text">Loading...</p>';
+
+        try {
+          let endpoint;
+          let isFetchingSubmittedClaims = false;
+
+
+
+          if (tabType === "claimed") {
+
+            endpoint = `http://localhost:5000/api/claims/my-claims`;
+            isFetchingSubmittedClaims = true;
+          }
+
+
+
+          else if (tabType === "lost" || tabType === "found") {
+            endpoint = `http://localhost:5000/api/items/user?type=${tabType}`;
+          } else {
+
+            console.warn("Attempting to load unrecognized tab type:", tabType);
+            container.innerHTML = `<p>Selected section not available.</p>`;
+            return;
+
+          }
+
+
+          const data = await fetchAPI(endpoint, { method: "GET" });
+
+          container.innerHTML = "";
+
+          if (!data.data || data.data.length === 0) {
+            let message = "No items found.";
+            if (tabType === "lost")
+              message = "You haven't reported any lost items.";
+            else if (tabType === "found")
+              message = "You haven't reported finding any items.";
+            else if (isFetchingSubmittedClaims)
+              message = "You haven't submitted any claims yet.";
+
+            container.innerHTML = `<p>${message}</p>`;
+            return;
+          }
+
+
+          data.data.forEach((itemOrClaim) => {
+            const itemEl = document.createElement("div");
+            itemEl.className = "item-row";
+
+            if (isFetchingSubmittedClaims) {
+
+
+              const claim = itemOrClaim;
+              const itemDetails = claim.itemId;
+              if (!itemDetails) return;
+
+              const statusClass = `status-${claim.status}`;
+              const itemDate = new Date(itemDetails.date).toLocaleDateString(
+                "en-CA"
+              );
+
+              itemEl.innerHTML = `
+                 <div class="item-info">
+                     <h4>Item: ${itemDetails.name || "N/A"}</h4>
+                     <p>Category: ${
+                       itemDetails.category?.replace("_", " ") || "N/A"
+                     }</p>
+                     <p>Location Originally Reported: ${
+                       itemDetails.location || "N/A"
+                     }</p>
+                     <p>Date Claim Submitted: ${new Date(
+                       claim.createdAt
+                     ).toLocaleDateString()}</p>
+                     <p><strong>Claim Status: <span class="claim-status ${statusClass}">${
+                claim.status
+              }</span></strong></p>
+                 </div>
+                 <div class="item-actions">
+                     <button class="view-btn" data-claim-id="${
+                       claim._id
+                     }" data-item-id="${itemDetails._id}" data-claim-status="${
+                claim.status
+              }">View Item/Claim Details</button>
+                     ${
+                       claim.status === "pending"
+                         ? `<button class="delete-btn" data-claim-id="${claim._id}" data-action="cancel-claim">Cancel Claim</button>`
+                         : ""
+                     }
+                     ${
+                       claim.status === "rejected"
+                         ? `<button class="delete-btn" data-claim-id="${claim._id}" data-action="delete-claim">Remove Claim History</button>`
+                         : ""
+                     }
+                 </div>`;
+
+
+              const viewBtn = itemEl.querySelector(".view-btn");
+              if (viewBtn) {
+                viewBtn.addEventListener("click", (e) => {
+                  viewSubmittedClaimDetails({
+
+                    claimId: e.target.dataset.claimId,
+                    itemId: e.target.dataset.itemId,
+                    claimStatus: e.target.dataset.claimStatus,
+                    itemName: itemDetails.name,
+                    itemDescription: itemDetails.description,
+                    itemCategory: itemDetails.category,
+                    itemLocation: itemDetails.location,
+                    itemDate: itemDate,
+                    itemTime: itemDetails.time,
+                    itemImage: itemDetails.image,
+                  });
+                });
+              }
+              itemEl.querySelectorAll(".delete-btn").forEach((btn) => {
+                btn.addEventListener("click", (e) =>
+                  handleUserClaimActions(
+                    e.target.dataset.action,
+                    e.target.dataset.claimId
+                  )
+                );
+              });
+            }
+
+
+
+            else {
+
+
+              const item = itemOrClaim;
+              const itemDate = new Date(item.date).toLocaleDateString("en-CA");
+              itemEl.innerHTML = `
+                   <div class="item-info">
+                       <h4>${item.name}</h4>
+                       <p>Category: ${
+                         item.category?.replace("_", " ") || "N/A"
+                       }</p>
+                       <p>Location: ${item.location || "N/A"}</p>
+                       <p>Date Reported: ${itemDate}</p>
+                       <p>Status: ${item.status}</p>
+                   </div>
+                   <div class="item-actions">
+                        ${
+                          tabType === "found"
+                            ? `<button class="view-claims-btn view-btn" data-item-id="${item._id}">View Claims Received</button>`
+                            : `<button class="view-details-btn view-btn" data-item-id="${item._id}">View Item Details</button>`
+                        }
+                       <button class="delete-btn" data-item-id="${
+                         item._id
+                       }">Delete Item</button>
+                   </div>`;
+
+
+              const viewBtn = itemEl.querySelector(".view-btn");
+              const deleteBtn = itemEl.querySelector(".delete-btn");
+
+              if (viewBtn) {
+                if (tabType === "found") {
+
+                  viewBtn.addEventListener("click", (e) =>
+                    showItemResponses(e.target.dataset.itemId)
+                  );
+                } else {
+
+                  viewBtn.addEventListener(
+                    "click",
+                    (e) =>
+                      (window.location.href = `item-detail.html?id=${e.target.dataset.itemId}`)
+                  );
+                }
+              }
+              if (deleteBtn) {
+                deleteBtn.addEventListener("click", async (e) => {
+                  if (
+                    confirm(
+                      "Are you sure you want to delete this item and all associated data? This cannot be undone."
+                    )
+                  ) {
+                    try {
+                      await deleteItem(e.target.dataset.itemId);
+                      loadUserItems(tabType);
+                    } catch (error) {
+
+                    }
+                  }
+                });
+              }
+            }
+            container.appendChild(itemEl);
+          });
+        } catch (error) {
+          console.error(`Error loading items for tab ${tabType}:`, error);
+          container.innerHTML = `<p class="error-message">Error loading items: ${error.message}</p>`;
+        }
+      }
+
+
+
+      async function showItemResponses(itemId) {
+        const modal = document.getElementById("responses-modal");
+        const container = document.getElementById("responses-container");
+        if (!modal || !container)
+          return console.error("Responses modal elements not found.");
+
+        modal.style.display = "block";
+        container.innerHTML =
+          "<p class='loading-text'>Loading responses...</p>";
+
+        try {
+          const data = await fetchAPI(
+            `http://localhost:5000/api/items/${itemId}/responses`
+          );
+
+          container.innerHTML = "";
+          if (!data.data || data.data.length === 0) {
+            container.innerHTML =
+              "<p>No responses or claims received for this item yet.</p>";
+            return;
+          }
+
+          data.data.forEach((claim) => {
+            const claimEl = document.createElement("div");
+            claimEl.className = "claim-card";
+            const statusClass = `status-${claim.status}`;
+
+            let responsesHtml =
+              claim.responses
+                ?.map(
+                  (r) => `
+                <div class="response">
+                    <p><strong>Q:</strong> ${r.question || "N/A"}</p>
+                    <p><strong>A:</strong> ${r.answer || "N/A"}</p>
+                </div>`
+                )
+                .join("") ||
+              "<p><i>No verification responses provided.</i></p>";
+
+            claimEl.innerHTML = `
+                <div class="claim-header">
+                    <h4>Claim by: ${claim.claimantId?.name || "Anonymous"}</h4>
+                    <span class="claim-status ${statusClass}">${
+              claim.status
+            }</span>
+                </div>
+                <div class="claim-details">
+                    <p><strong>Contact:</strong> ${
+                      claim.claimantId?.email || "N/A"
+                    } | ${claim.claimantId?.phone || "N/A"}</p>
+                    <p><strong>Submitted:</strong> ${new Date(
+                      claim.createdAt
+                    ).toLocaleString()}</p>
+                    <h5>Verification Responses:</h5>
+                    ${responsesHtml}
+                </div>
+                ${
+                  claim.status === "pending"
+                    ? `
+                    <div class="item-actions" style="flex-direction: row; justify-content: flex-end;"> <button class="approve-btn view-btn" data-claim-id="${claim._id}">Approve</button>
+                        <button class="reject-btn delete-btn" data-claim-id="${claim._id}">Reject</button>
+                    </div>`
+                    : ""
+                }`;
+
+            if (claim.status === "pending") {
+              const approveBtn = claimEl.querySelector(".approve-btn");
+              const rejectBtn = claimEl.querySelector(".reject-btn");
+              if (approveBtn)
+                approveBtn.addEventListener("click", () =>
+                  handleClaimAction(claim._id, "approved", itemId)
+                );
+              if (rejectBtn)
+                rejectBtn.addEventListener("click", () =>
+                  handleClaimAction(claim._id, "rejected", itemId)
+                );
+            }
+            container.appendChild(claimEl);
+          });
+        } catch (error) {
+          console.error("Error loading responses:", error);
+          container.innerHTML = `<p class="error-message">Error loading responses: ${error.message}</p>`;
+        }
+      }
+
+
+      function handleUserClaimActions(action, claimId) {
+        if (action === "cancel-claim") {
+          if (confirm("Are you sure you want to cancel this pending claim?")) {
+            alert("Cancel claim functionality requires backend API endpoint.");
+
+          }
+        } else if (action === "delete-claim") {
+          if (
+            confirm(
+              "Are you sure you want to remove this rejected claim history? This cannot be undone."
+            )
+          ) {
+            alert(
+              "Delete rejected claim history requires backend API endpoint."
+            );
+
+          }
+        }
+      }
+
+
+      async function handleClaimAction(claimId, status, itemId) {
+        try {
+          const data = await fetchAPI(
+            `http://localhost:5000/api/claims/claims/${claimId}/verify`,
+            {
+
+              method: "PUT",
+              body: JSON.stringify({ status }),
+            }
+          );
+
+          alert(`Claim successfully ${status}.`);
+          if (responsesModal) responsesModal.style.display = "none";
+          showItemResponses(itemId);
+          if (document.querySelector('.tab-btn[data-tab="found"].active')) {
+            loadUserItems("found");
+          }
+        } catch (error) {
+          console.error(`Error trying to ${status} claim:`, error);
+          alert(`Error: ${error.message}`);
+        }
+      }
+
+
+      async function deleteItem(itemId) {
+        try {
+          await fetchAPI(`http://localhost:5000/api/items/${itemId}`, {
+            method: "DELETE",
+          });
+          alert("Item and associated data deleted successfully.");
+
+        } catch (error) {
+          console.error("Error deleting item:", error);
+          alert(`Error deleting item: ${error.message}`);
+          throw error;
+        }
+      }
+
+      async function viewSubmittedClaimDetails(claimInfo) {
+        const modal = document.getElementById("claimed-item-modal");
+        const detailsContainer = document.getElementById(
+          "claimed-item-details"
+        );
+        if (!modal || !detailsContainer)
+          return console.error("Claim details modal elements missing.");
+        detailsContainer.innerHTML =
+          "<p class='loading-text'>Loading details...</p>";
+        modal.style.display = "block";
+
+        try {
+          let detailsHtml = `
+              <h3>Item Claim Details</h3>
+              <p><strong>Item Name:</strong> ${claimInfo.itemName || "N/A"}</p>
+              <p><strong>Category:</strong> ${
+                claimInfo.itemCategory?.replace("_", " ") || "N/A"
+              }</p>
+              <p><strong>Description:</strong> ${
+                claimInfo.itemDescription || "N/A"
+              }</p>
+              <p><strong>Location Originally Reported:</strong> ${
+                claimInfo.itemLocation || "N/A"
+              }</p>
+              <p><strong>Date Originally Reported:</strong> ${
+                claimInfo.itemDate || "N/A"
+              }</p>
+              <p><strong>Time Originally Reported:</strong> ${
+                claimInfo.itemTime || "N/A"
+              }</p>
+              <hr>
+              <p><strong>Your Claim Status: <span class="claim-status status-${
+                claimInfo.claimStatus
+              }">${claimInfo.claimStatus}</span></strong></p>`;
+
+          if (claimInfo.claimStatus === "approved") {
+            detailsHtml += `<hr><h4>Contact Information (Original Poster)</h4>`;
+            try {
+
+              const result = await fetchAPI(
+                `http://localhost:5000/api/items/claimed/${claimInfo.itemId}`
+              );
+              if (result.success && result.data.postedBy) {
+                detailsHtml += `
+                     <p><strong>Name:</strong> ${
+                       result.data.postedBy.name || "N/A"
+                     }</p>
+                     <p><strong>Email:</strong> ${
+                       result.data.postedBy.email || "N/A"
+                     }</p>
+                     <p><strong>Phone:</strong> ${
+                       result.data.postedBy.phone || "N/A"
+                     }</p>`;
+              } else {
+                detailsHtml += `<p>Could not retrieve contact details (${
+                  result.message || "unknown reason"
+                }).</p>`;
+              }
+            } catch (error) {
+              console.error(
+                "Error fetching contact details for approved claim:",
+                error
+              );
+              detailsHtml += `<p style="color: red;">Error loading contact details: ${error.message}</p>`;
+            }
+          } else if (claimInfo.claimStatus === "pending") {
+            detailsHtml += `<p><i>Contact information will be shown here if your claim is approved.</i></p>`;
+          } else {
+
+            detailsHtml += `<p><i>Your claim was rejected. Contact information is not available.</i></p>`;
+          }
+
+          if (claimInfo.itemImage && claimInfo.claimStatus === "approved") {
+            const imagePath = `http://localhost:5000/uploads/${claimInfo.itemImage}`;
+            detailsHtml += `
+                <hr>
+                <h4>Item Image</h4>
+                <div style="text-align: center; margin-top: 15px;">
+                     <img src="${imagePath}" alt="${
+              claimInfo.itemName || "Item Image"
+            }" style="max-width: 100%; max-height: 300px; border-radius: 5px; background-color: #f0f0f0; object-fit: contain;" onerror="this.onerror=null; this.src='images/default-item.jpg'; this.alt='Image not available';">
+                </div>`;
+          } else if (claimInfo.claimStatus === "rejected") {
+            detailsHtml +=
+              "<hr><p><i>Item image is not shown for rejected claims.</i></p>";
+          } else if (claimInfo.itemImage) {
+
+            detailsHtml +=
+              "<hr><p><i>Item image will be shown here if the claim is approved.</i></p>";
+          } else {
+            detailsHtml +=
+              "<hr><p><i>No image was provided for this item.</i></p>";
+          }
+
+          detailsContainer.innerHTML = detailsHtml;
+        } catch (error) {
+          console.error("Error preparing submitted claim details:", error);
+          detailsContainer.innerHTML = `<p class="error-message">Error displaying details: ${error.message}</p>`;
+        }
+      }
+
+      function setupChangePassword() {
+        const form = document.getElementById("change-password-form");
+        const modal = document.getElementById("change-password-modal");
+        const errorDisplay = document.getElementById("password-error");
+        const openBtn = document.getElementById("change-password-btn");
+        const cancelBtn = document.getElementById("cancel-password-btn");
+        const closeBtn = modal ? modal.querySelector(".close") : null;
+
+        if (
+          !form ||
+          !modal ||
+          !errorDisplay ||
+          !openBtn ||
+          !cancelBtn ||
+          !closeBtn
+        ) {
+          console.error("Change password modal elements missing.");
+          return;
+        }
+
+        openBtn.addEventListener("click", () => {
+          form.reset();
+          errorDisplay.style.display = "none";
+          errorDisplay.textContent = "";
+          modal.style.display = "block";
+        });
+
+
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          errorDisplay.style.display = "none";
+          errorDisplay.textContent = "";
+
+          const currentPassword = form.currentPassword.value;
+          const newPassword = form.newPassword.value;
+          const confirmPassword = form.confirmPassword.value;
+
+          if (newPassword !== confirmPassword) {
+            errorDisplay.textContent = "New passwords do not match.";
+            errorDisplay.style.display = "block";
+            return;
+          }
+          if (newPassword.length < 8) {
+            errorDisplay.textContent =
+              "New password must be at least 8 characters.";
+            errorDisplay.style.display = "block";
+            return;
+          }
+
+          try {
+            const data = await fetchAPI(
+              `http://localhost:5000/api/auth/change-password`,
+              {
+
+                method: "POST",
+                body: JSON.stringify({ currentPassword, newPassword }),
+              }
+            );
+
+            alert("Password changed successfully!");
+            modal.style.display = "none";
+            form.reset();
+          } catch (error) {
+            errorDisplay.textContent = error.message;
+            errorDisplay.style.display = "block";
+            console.error("Password change error:", error);
+          }
+        });
+      }
+
+
+      function setupModalCloseLogic(modalElement) {
+        if (!modalElement) return;
+        const closeBtn = modalElement.querySelector(".close");
+        const cancelBtn = modalElement.querySelector('#cancel-password-btn'); // Check for cancel button
+
+        if (closeBtn) {
+          closeBtn.addEventListener("click", () => {
+            modalElement.style.display = "none";
+          });
+        }
+        if(cancelBtn) {
+           cancelBtn.addEventListener('click', () => {
+             modalElement.style.display = "none";
+           });
+        }
+        window.addEventListener("click", (event) => {
+          if (event.target === modalElement) {
+            modalElement.style.display = "none";
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

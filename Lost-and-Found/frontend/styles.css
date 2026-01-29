@@ -1,0 +1,1007 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+
+/* General Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  background-color: hsla(206, 100%, 92%, 0.5);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("images/image.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  background-attachment: fixed;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  font-size: 1.2rem;
+}
+
+header .logo {
+  font-size: 24px;
+  font-weight: bold;
+  background: linear-gradient(to right, #007bff, #ff6f61);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-profile-container {
+  display: flex;
+  align-items: center;
+}
+
+header nav {
+  display: flex;
+}
+
+header nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: black;
+}
+
+header nav a:hover {
+  color: #007bff;
+}
+
+main h2 {
+  font-size: 28px;
+}
+
+.nav-profile-container img {
+  margin-left: 20px;
+}
+
+.nav-profile-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.user-pic,
+.sub-menu-wrap {
+  display: none;
+}
+
+.user-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.sub-menu-wrap {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s ease-in-out;
+}
+
+.sub-menu-wrap.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+.sub-menu {
+  padding: 20px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info h3 {
+  font-weight: bold;
+}
+
+.sub-menu hr {
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+}
+
+.sub-menu-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: #525252;
+  margin: 12px 0;
+}
+
+.sub-menu-link p {
+  width: 100%;
+}
+
+.sub-menu-link img {
+  width: 40px;
+  background: #e5e5e5;
+  border-radius: 50%;
+  padding: 8px;
+  margin-right: 15px;
+}
+
+.sub-menu-link span {
+  font-size: 22px;
+  transition: transform 0.5s;
+}
+
+.sub-menu-link:hover span {
+  transform: translateX(5px);
+}
+
+.sub-menu-link:hover p {
+  font-weight: 600;
+}
+
+main {
+  text-align: center;
+}
+
+/* Home Page */
+#home h1 {
+  font-size: 3.5rem;
+  margin-top: 120px;
+}
+
+#home .container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+#home button {
+  color: #ffffff;
+  border: none;
+  padding: 15px 30px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.find-item-button {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.post-item-button {
+  background-color: #ff5722;
+  color: #ffffff;
+}
+
+.lost-item-button {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.find-item-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.post-item-button:hover {
+  background-color: #e64a19;
+  transform: scale(1.05);
+}
+
+.lost-item-button:hover {
+  background-color: #1e7a37;
+  transform: scale(1.05);
+}
+
+#about {
+  background-color: rgba(255, 255, 255, 0.4);
+  padding: 40px;
+  margin: 80px auto;
+  max-width: 1200px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+#about h2 {
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 30px;
+}
+
+.about-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.about-content div {
+  flex-basis: calc(33.33% - 20px);
+  margin-bottom: 20px;
+}
+
+.about-content h3 {
+  color: #141414;
+  margin-bottom: 15px;
+}
+
+.about-content p,
+.about-content ul,
+.about-content ol {
+  color: #2d2a2a;
+  line-height: 1.6;
+}
+
+.about-content ul,
+.about-content ol {
+  padding-left: 20px;
+}
+
+/* Items List Page */
+#item-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#item-not-found p {
+  font-size: 20px;
+}
+
+#item-not-found p a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+#item-not-found p a:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.search-bar input[type="text"] {
+  width: 300px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-bar input[type="text"]:focus {
+  border-color: #0056b3;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar button {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #0056b3;
+}
+
+.items-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.items-container img {
+  max-height: 200px;
+}
+
+.item-card {
+  background-color: hsla(0, 0%, 100%, 0.5);
+  border-radius: 8px;
+  margin: 20px;
+  padding: 10px;
+  width: calc(25% - 40px);
+  overflow: hidden;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.item-card img {
+  width: calc(100%);
+}
+
+.item-card h3 {
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+.item-card p {
+  font-size: 14px;
+  color: #0f0f0f;
+}
+
+.item-card:hover {
+  transform: scale(1.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Post Item Form Page */
+#post-item form {
+  background-color: hsla(0, 0%, 100%, 0.2);
+  border: 2px solid #d6edff;
+  border-radius: 10px;
+  padding: 30px;
+  width: 400px;
+  margin: 20px auto;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#post-item form input,
+#post-item form textarea {
+  width: calc(100% - 20px);
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  color: #333333;
+}
+
+#post-item form input:focus,
+#post-item form textarea:focus {
+  border-color: #007bff;
+}
+
+#post-item form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  color: #333333;
+  font-size: 16px;
+}
+
+#post-item form select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+#post-item form select option {
+  padding: 12px;
+}
+
+#post-item form button {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#post-item form button:hover {
+  background-color: #0056b3;
+}
+
+#post-item form label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Auth Form Styles */
+#login-page,
+#signup-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.auth-form {
+  background-color: hsla(0, 0%, 100%, 0.3);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+}
+
+.auth-form label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.auth-form input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: none;
+  border-bottom: solid #cccccc thin;
+}
+
+.auth-form input:focus {
+  border-bottom-color: #007bff;
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-form button:hover {
+  background-color: #0056b3;
+}
+
+.auth-form button:active {
+  background-color: #004085;
+}
+
+.auth-form p {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.auth-form a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.auth-form a:hover {
+  text-decoration: underline;
+}
+.auth-form input:not(:focus):invalid {
+  /* Added .auth-form */
+  border: 1px solid red;
+}
+
+.auth-form input:not(:focus):valid {
+  /* Added .auth-form */
+  border: 1px solid green;
+}
+
+/* For file inputs specifically */
+input[type="file"]:not(:focus):invalid,
+input[type="file"]:not(:focus):valid {
+  /* Remove aggressive styling or blinking effects */
+  border: none;
+  outline: none;
+}
+
+/* new */
+/* Claim modal styles */
+.claim-modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.claim-modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.claim-modal .close {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.claim-modal h2 {
+  margin-top: 0;
+  color: #007bff;
+}
+
+.question {
+  margin-bottom: 20px;
+}
+
+.question label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.answer-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#submit-claim-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+#submit-claim-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.item-placeholder {
+  background-color: #f0f0f0;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.claim-btn {
+  background-color: #ff5722;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.claim-btn:hover {
+  background-color: #e64a19;
+}
+
+/* Add to your styles.css file */
+.verification-section {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.verification-section h3 {
+  margin-top: 0;
+  color: #007bff;
+}
+
+.question-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.remove-question {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* Account Page Styles */
+#account-page {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.account-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.account-section {
+  margin-bottom: 30px;
+}
+
+.account-section h3 {
+  color: #2981e6;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 12px;
+  margin-bottom: 30px;
+  font-size: 1.4rem;
+}
+
+.profile-details {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.profile-details label {
+  font-weight: bold;
+  color: #333;
+}
+
+.profile-details p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.info-row {
+  display: flex;
+}
+
+.info-row label {
+  font-weight: bold;
+  width: 80px;
+}
+
+/* Removed edit-profile-btn styles */
+
+/* Added change password button styles */
+#change-password-btn {
+  background-color: #2981e6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+#change-password-btn:hover {
+  background-color: #1a68c9;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 25px;
+}
+
+.tab-btn {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-btn.active {
+  color: #007bff;
+  border-bottom-color: transparent;
+}
+
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+}
+
+.items-list {
+  /* Add these properties */
+  display: flex; /* Enables Flexbox layout for children */
+  flex-wrap: wrap; /* Allows items to move to the next line if no space */
+  gap: 20px; /* Creates space BETWEEN the items (adjust value as needed) */
+
+  /* Keep or add existing properties */
+  min-height: 200px;
+  /* Remove any fixed width: 100% if you have one here */
+}
+
+.item-row {
+  /* --- Add these flex item properties --- */
+  flex-basis: 300px; /* Sets the initial preferred width for each card */
+  /* Multiple cards will fit side-by-side if space allows */
+  flex-grow: 1; /* Allows cards to grow and fill empty space on the line */
+  /* This helps make rows look more even */
+
+  /* --- Keep your existing styles for how content INSIDE the row looks --- */
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Or 'flex-start' if you prefer top alignment */
+  padding: 15px;
+  background-color: hsla(0, 0%, 100%, 0.5);
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  /* --- IMPORTANT: Remove margin-bottom if you added 'gap' to .items-list --- */
+  /* margin-bottom: 10px; */ /* Comment out or remove this */
+}
+.item-info h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.item-info p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.view-btn,
+.delete-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.view-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.loading-text,
+.no-items,
+.error-message {
+  text-align: center;
+  padding: 20px;
+}
+
+.error-message {
+  padding: 20px;
+  color: #d9534f;
+  background-color: rgba(217, 83, 79, 0.1);
+  border-radius: 6px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 500px;
+}
+
+/* claims */
+/* Claims Page Styles */
+#claims-page {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.claims-container {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.claim-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.claim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.claim-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.claim-status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.status-pending {
+  background-color: #ffeeba;
+  color: #856404;
+}
+
+.status-approved {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.claim-info {
+  margin-bottom: 15px;
+}
+
+.claim-info p {
+  margin: 5px 0;
+}
+
+.claim-responses {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.claim-responses h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.response-item {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.response-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.claim-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.approve-btn,
+.reject-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.approve-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.reject-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Modal Styles in account */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 8px;
+}
+
+.modal-scrollable {
+  max-height: calc(100vh - 200px); /* Adjust height based on modal size */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.close {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}

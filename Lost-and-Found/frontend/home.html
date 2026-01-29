@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lost and Found - Home</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <div class="nav-profile-container">
+        <nav>
+          <a href="home.html">Home</a>
+          <a href="items.html">Found Item</a>
+          <a href="post.html">Post Item</a>
+          <a href="lost.html">Lost Item</a>
+          <a href="signup.html" id="signup-link">Sign up</a>
+          <a href="login.html" id="login-link">Log in</a>
+        </nav>
+        <img src="images/profile-pic.png" alt="profile" class="user-pic" />
+        <div class="sub-menu-wrap">
+          <div class="sub-menu">
+            <div class="user-info">
+              <h3>Tilak</h3>
+            </div>
+            <hr />
+            <a href="account.html" class="sub-menu-link">
+              <img src="images/profile.png" />
+              <p>Your Account</p>
+              <span>></span>
+            </a>
+            <a href="#" class="sub-menu-link" id="logout-link">
+              <img src="images/logout.png" />
+              <p>Logout</p>
+              <span>></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="home">
+      <h1>Lost and Found</h1>
+      <div class="container">
+        <button
+          onclick="window.location.href='items.html'"
+          class="find-item-button"
+        >
+          Found item
+        </button>
+        <button
+          onclick="window.location.href='post.html'"
+          class="post-item-button"
+        >
+          Post item
+        </button>
+        <button
+          onclick="window.location.href='lost.html'"
+          class="lost-item-button"
+        >
+          Lost item
+        </button>
+      </div>
+
+      <section id="about">
+        <h2>About Us</h2>
+        <div class="about-content">
+          <div class="mission">
+            <h3>Our Mission</h3>
+            <p>
+              Our mission is simple: to reunite lost items with their owners. We
+              believe in the power of community and technology to solve everyday
+              problems, and we're committed to providing a reliable,
+              user-friendly service to help you find what you've lost or return
+              what you've found.
+            </p>
+          </div>
+          <div class="how-it-works">
+            <h3>How It Works</h3>
+            <ol>
+              <li>
+                <strong>Report a Lost Item:</strong> Fill out our easy-to-use
+                form with all the details about your item.
+              </li>
+              <li>
+                <strong>Report a Found Item:</strong> Let us know if you've
+                found something by providing detailed information.
+              </li>
+              <li>
+                <strong>Search Listings:</strong> Browse through the listings of
+                lost and found items using filters.
+              </li>
+              <li>
+                <strong>Get Connected:</strong> We'll help you get in touch
+                securely when a match is found.
+              </li>
+            </ol>
+          </div>
+          <div class="why-choose-us">
+            <h3>Why Choose Us?</h3>
+            <ul>
+              <li>
+                <strong>User-Friendly Interface:</strong> Our platform is
+                designed to be intuitive and easy to navigate.
+              </li>
+              <li>
+                <strong>Secure Communication:</strong> Your privacy is our
+                priority. We ensure that your contact information is kept
+                confidential.
+              </li>
+              <li>
+                <strong>Community Driven:</strong> By helping each other, we can
+                make a difference. Every item returned is a small victory for
+                our community.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+      let logoutTimer;
+
+      function resetLogoutTimer() {
+        clearTimeout(logoutTimer);
+        logoutTimer = setTimeout(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          alert("You have been logged out due to inactivity.");
+          window.location.href = "login.html";
+        }, 300000);
+      }
+
+      resetLogoutTimer();
+
+      document.addEventListener("mousemove", resetLogoutTimer);
+      document.addEventListener("keypress", resetLogoutTimer);
+
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        alert("You have been logged out due to inactivity.");
+        window.location.href = "login.html";
+      }, 300000);
+
+      const userPic = document.querySelector(".user-pic");
+      const subMenuWrap = document.querySelector(".sub-menu-wrap");
+
+      userPic.addEventListener("click", () => {
+        subMenuWrap.classList.toggle("open");
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const userPic = document.querySelector(".user-pic");
+        const subMenuWrap = document.querySelector(".sub-menu-wrap");
+        const signupLink = document.querySelector('a[href="signup.html"]');
+        const loginLink = document.querySelector('a[href="login.html"]');
+
+        if (token && user.id) {
+          userPic.style.display = "block";
+          subMenuWrap.style.display = "block";
+
+          const userNameElement = document.querySelector(".user-info h3");
+          if (userNameElement) {
+            userNameElement.textContent = user.name || "User";
+          }
+
+          if (signupLink) signupLink.style.display = "none";
+          if (loginLink) loginLink.style.display = "none";
+        } else {
+          if (userPic) userPic.style.display = "none";
+          if (subMenuWrap) subMenuWrap.style.display = "none";
+
+          if (signupLink) signupLink.style.display = "block";
+          if (loginLink) loginLink.style.display = "block";
+        }
+
+        const logoutLink = document.getElementById("logout-link");
+        if (logoutLink) {
+          logoutLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

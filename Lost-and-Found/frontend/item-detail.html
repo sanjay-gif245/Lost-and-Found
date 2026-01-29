@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Item Details - Lost and Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .detail-container {
+        max-width: 800px;
+        margin: 30px auto;
+        background-color: hsla(
+          0,
+          0%,
+          100%,
+          0.85
+        );
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .detail-container img {
+        max-width: 100%;
+        height: auto;
+        max-height: 450px;
+        display: block;
+        margin: 0 auto 25px;
+        border-radius: 8px;
+        object-fit: contain;
+        background-color: #f8f9fa;
+      }
+      .detail-container h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #007bff;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+      }
+      .detail-info p {
+        margin: 12px 0;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #333;
+      }
+      .detail-info strong {
+        color: #0056b3;
+        margin-right: 8px;
+        min-width: 120px;
+        display: inline-block;
+      }
+      .loading,
+      .error {
+        text-align: center;
+        font-size: 1.2rem;
+        padding: 30px;
+        color: #666;
+      }
+      .error {
+        color: #dc3545;
+      }
+      .back-link {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 10px 15px;
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        transition: background-color 0.2s, color 0.2s;
+      }
+      .back-link:hover {
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <div class="nav-profile-container">
+        <nav>
+          <a href="home.html">Home</a>
+          <a href="items.html">Found Item</a>
+          <a href="post.html">Post Item</a>
+          <a href="lost.html">Lost Item</a>
+          <a href="signup.html" id="signup-link" style="display: none"
+            >Sign up</a
+          >
+          <a href="login.html" id="login-link" style="display: none">Log in</a>
+        </nav>
+        <img
+          src="images/profile-pic.png"
+          alt="profile"
+          class="user-pic"
+          style="display: none"
+        />
+        <div class="sub-menu-wrap" style="display: none">
+          <div class="sub-menu">
+            <div class="user-info"><h3>User</h3></div>
+            <hr />
+            <a href="account.html" class="sub-menu-link"
+              ><img src="images/profile.png" />
+              <p>Your Account</p>
+              <span>></span></a
+            >
+            <a href="#" class="sub-menu-link" id="logout-link"
+              ><img src="images/logout.png" />
+              <p>Logout</p>
+              <span>></span></a
+            >
+            <a href="claims.html" class="sub-menu-link"
+              ><img src="images/claims.png" />
+              <p>Item Claims</p>
+              <span>></span></a
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div id="item-details-container" class="detail-container">
+        <p class="loading">Loading item details...</p>
+      </div>
+      <div style="text-align: center">
+        <a href="home.html" class="back-link">← Back to Home</a>
+      </div>
+    </main>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const userPic = document.querySelector(".user-pic");
+        const subMenuWrap = document.querySelector(".sub-menu-wrap");
+        const signupLink = document.getElementById("signup-link");
+        const loginLink = document.getElementById("login-link");
+        const userNameElement = document.querySelector(".user-info h3");
+
+        let isLoggedIn = false;
+        if (token) {
+          isLoggedIn = true;
+        }
+
+        if (isLoggedIn) {
+          if (userPic) userPic.style.display = "block";
+          if (subMenuWrap) subMenuWrap.style.display = "block";
+          if (userNameElement && user.name)
+            userNameElement.textContent = user.name;
+          if (signupLink) signupLink.style.display = "none";
+          if (loginLink) loginLink.style.display = "none";
+
+          const logoutLink = document.getElementById("logout-link");
+          if (logoutLink) {
+            logoutLink.addEventListener("click", (e) => {
+              e.preventDefault();
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              window.location.href = "login.html";
+            });
+          }
+          if (userPic) {
+            userPic.addEventListener("click", () => {
+              if (subMenuWrap) {
+                if (subMenuWrap.style.display === "none") {
+                  subMenuWrap.style.display = "block";
+                }
+                subMenuWrap.classList.toggle("open");
+              }
+            });
+          }
+
+          loadItemDetails();
+        } else {
+          console.log("No token found, redirecting to login.");
+          window.location.href = "login.html";
+          return;
+        }
+      });
+
+      async function loadItemDetails() {
+        const container = document.getElementById("item-details-container");
+        const params = new URLSearchParams(window.location.search);
+        const itemId = params.get("id");
+        const token = localStorage.getItem("token");
+
+        if (!itemId) {
+          container.innerHTML =
+            '<p class="error">Error: No item ID specified in the URL.</p>';
+          return;
+        }
+
+        container.innerHTML = '<p class="loading">Fetching details...</p>';
+
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/items/details/${itemId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            let errorMsg = `Error: ${response.status}`;
+            try {
+              const errorData = await response.json();
+              errorMsg = errorData.message || errorMsg;
+            } catch (e) {
+              errorMsg = response.statusText || errorMsg;
+            }
+            throw new Error(errorMsg);
+          }
+
+          const result = await response.json();
+
+          if (result.success && result.data) {
+            displayDetails(result.data);
+          } else {
+            throw new Error(
+              result.message || "Backend reported an issue retrieving details."
+            );
+          }
+        } catch (error) {
+          console.error("Error loading item details:", error);
+          container.innerHTML = `<p class="error">Could not load item details: ${error.message}</p>`;
+        }
+      }
+      function displayDetails(item) {
+        const container = document.getElementById("item-details-container");
+        const itemDate = new Date(item.date).toLocaleDateString("en-CA");
+        const imagePath = item.image
+          ? `http://localhost:5000/uploads/${item.image}`
+          : "images/default-item.jpg";
+
+        container.innerHTML = `
+          <h2>${item.name}</h2>
+          <img src="${imagePath}" alt="${
+          item.name
+        }" onerror="this.onerror=null; this.src='images/default-item.jpg'; this.style.backgroundColor='#f0f0f0';">
+          <div class="detail-info">
+              <p><strong>Category:</strong> ${
+                item.category?.replace("_", " ") || "N/A"
+              }</p>
+              <p><strong>Description:</strong> ${item.description || "N/A"}</p>
+              <p><strong>Location ${
+                item.type === "lost" ? "Lost" : "Found"
+              }:</strong> ${item.location || "N/A"}</p>
+              <p><strong>Date ${
+                item.type === "lost" ? "Lost" : "Found"
+              }:</strong> ${itemDate}</p>
+              <p><strong>Time ${
+                item.type === "lost" ? "Lost" : "Found"
+              }:</strong> ${item.time || "N/A"}</p>
+              <p><strong>Status:</strong> ${item.status || "N/A"}</p>
+              <hr>
+              <h4>Contact Information (Poster)</h4>
+              <p><strong>Name:</strong> ${
+                item.user?.name || "Not Available"
+              }</p>
+              <p><strong>Email:</strong> ${
+                item.user?.email || "Not Available"
+              }</p>
+              <p><strong>Phone:</strong> ${
+                item.user?.phone || "Not Available"
+              }</p>
+              ${
+                item.type === "found"
+                  ? '<p><i>(If this is your lost item, use the "Claim" process on the Found Items page.)</i></p>'
+                  : ""
+              }
+              ${
+                item.type === "lost"
+                  ? "<p><i>(Contact the poster directly if you found this item.)</i></p>"
+                  : ""
+              }
+          </div>
+        `;
+      }
+    </script>
+  </body>
+</html>

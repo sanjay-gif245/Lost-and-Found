@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Found Items - Lost and Found</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo" onclick="window.location.href='home.html'">
+        LOST & FOUND
+      </div>
+      <div class="nav-profile-container">
+        <nav>
+          <a href="home.html">Home</a>
+          <a href="post.html">Post Item</a>
+          <a href="lost.html">Lost Item</a>
+        </nav>
+        <img src="images/profile-pic.png" alt="profile" class="user-pic" />
+        <div class="sub-menu-wrap">
+          <div class="sub-menu">
+            <div class="user-info">
+              <h3>User</h3>
+            </div>
+            <hr />
+            <a href="account.html" class="sub-menu-link">
+              <img src="images/profile.png" />
+              <p>Your Profile</p>
+              <span>></span>
+            </a>
+            <a href="#" class="sub-menu-link" id="logout-link">
+              <img src="images/logout.png" />
+              <p>Logout</p>
+              <span>></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <h2>Found Items</h2>
+      <form class="search-bar" id="search-bar" role="search">
+        <input type="text" id="search-input" placeholder="Search items..." />
+        <button type="submit">Search</button>
+      </form>
+
+      <div id="item-not-found">
+        <p>
+          If your lost item is not available below
+          <a href="post_lost.html">click here</a>
+        </p>
+      </div>
+
+      <div class="items-container"></div>
+    </main>
+
+    <script src="js/claim.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const userPic = document.querySelector(".user-pic");
+        const subMenuWrap = document.querySelector(".sub-menu-wrap");
+
+        if (!token) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        if (userPic) userPic.style.display = "block";
+        if (subMenuWrap) subMenuWrap.style.display = "block";
+
+        const userNameElement = document.querySelector(".user-info h3");
+        if (userNameElement && user.name) {
+          userNameElement.textContent = user.name;
+        }
+
+        if (userPic) {
+          userPic.addEventListener("click", function () {
+            if (subMenuWrap) {
+              subMenuWrap.classList.toggle("open");
+            }
+          });
+        }
+
+        loadItems();
+      });
+
+      document
+        .getElementById("logout-link")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "login.html";
+        });
+
+      document
+        .getElementById("search-bar")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          loadItems();
+        });
+
+      async function loadItems() {
+        const searchQuery = document.getElementById("search-input").value || "";
+        const token = localStorage.getItem("token");
+
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/items?type=found&search=${searchQuery}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            displayItems(data.data || []);
+          } else {
+            console.error(
+              "Failed to fetch items:",
+              data.message || "Unknown error"
+            );
+            const container = document.querySelector(".items-container");
+            container.innerHTML =
+              "<p class='error-message'>Failed to load items. Please try again later.</p>";
+          }
+        } catch (error) {
+          console.error("Error fetching items:", error);
+          const container = document.querySelector(".items-container");
+          container.innerHTML =
+            "<p class='error-message'>Error connecting to server. Please try again later.</p>";
+        }
+      }
+
+      function displayItems(items) {
+        const container = document.querySelector(".items-container");
+        const notFoundMessage = document.getElementById("item-not-found");
+
+        if (notFoundMessage) {
+          notFoundMessage.style.display = "block";
+        }
+
+        container.innerHTML = "";
+
+        if (!items || items.length === 0) {
+          container.innerHTML = "<p>No found items match your criteria.</p>";
+        } else {
+          items.forEach((item) => {
+            const itemCard = document.createElement("div");
+            itemCard.className = "item-card";
+
+            const itemDate = new Date(item.date).toLocaleDateString("en-CA");
+
+            itemCard.innerHTML = `
+              <h3>${item.name || "N/A"}</h3>
+              <p><strong>Category:</strong> ${
+                item.category?.replace("_", " ") || "N/A"
+              }</p>
+              <p><strong>Description:</strong> ${item.description || "N/A"}</p>
+              <p><strong>Location:</strong> ${item.location || "N/A"}</p>
+              <p><strong>Date Found:</strong> ${itemDate}</p>
+              <p><strong>Time:</strong> ${item.time || "N/A"}</p>
+              <button class="claim-btn" data-item-id="${
+                item._id
+              }" data-item-name="${
+              item.name || "this item"
+            }">Claim This Item</button>
+            `;
+
+            container.appendChild(itemCard);
+          });
+
+          document.querySelectorAll(".claim-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              if (typeof startClaimProcess === "function") {
+                startClaimProcess(btn.dataset.itemId, btn.dataset.itemName);
+              } else {
+                console.error(
+                  "startClaimProcess function not found. Ensure claim.js is correctly loaded."
+                );
+                alert(
+                  "Error: Could not initiate claim process. Script missing."
+                );
+              }
+            });
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
